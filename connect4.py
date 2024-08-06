@@ -52,21 +52,19 @@ def validate_input(prompt, valid_inputs):
 		user_input = input(prompt)
 	return user_input
 
-def create_board():
+def create_board(rows:int, cols: int):
 	"""
 	Returns a 2D list of 6 rows and 7 columns to represent
 	the game board. Default cell value is 0.
 
 	:return: A 2D list of 6x7 dimensions.
 	"""
-	rows = 6
-	columns = 7
 	board = []
 	
 	# Prints a 2D array of 7 for 6 times
 	for i in range (rows):
 		row = []
-		for k in range (columns):
+		for k in range (cols):
 			row.append(0)
 		board.append(row)
 	return board
@@ -92,9 +90,11 @@ def print_board(board):
 
 		# For loop prints the columns and updates each cell of the column with the correct value corresponding to the player 
 		for cells in range (0, 7, 1):
-			if board[row][cells] == 0: # Print 'blank' if the cell is equal to zero
-			 	print("   |", end='') 
-			elif board[row][cells] == 1: # Print 'X' if the cell is filled with 1
+			# Print 'blank' if the cell is equal to zero
+			if board[row][cells] == 0:
+				print("   |", end='') 
+			# Print 'X' if the cell is filled with 1
+			elif board[row][cells] == 1: 
 				print(" X |", end='')
 			elif board[row][cells] == 2: # Print 'O' if the cell is filled with 2
 				print(" O |", end='') 
@@ -581,5 +581,5 @@ def execute_cpu_player_hard():
 			round_number += 1
 
 if __name__ == "__main__":
-	board = create_board()
+	board = create_board(6,7)
 	main()
