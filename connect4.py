@@ -1,9 +1,6 @@
-"""
-FIT1045: Sem 1 2023 Assignment 1 
-Applied 06_July
-"""
 import random
 import os
+import board as game_board
 
 def clear_screen():
 	"""
@@ -31,7 +28,6 @@ def print_rules():
 	print("the game is a draw.")
 	print("=========================================")
 
-
 def validate_input(prompt, valid_inputs):
 	"""
 	Repeatedly ask user for input until they enter an input
@@ -51,79 +47,6 @@ def validate_input(prompt, valid_inputs):
 		print("Invalid input, please try again.")
 		user_input = input(prompt)
 	return user_input
-
-def create_board(rows:int, cols: int):
-	"""
-	Returns a 2D list of 6 rows and 7 columns to represent
-	the game board. Default cell value is 0.
-
-	:return: A 2D list of 6x7 dimensions.
-	"""
-	board = []
-	
-	# Prints a 2D array of 7 for 6 times
-	for i in range (rows):
-		row = []
-		for k in range (cols):
-			row.append(0)
-		board.append(row)
-	return board
-
-def print_board(board):
-	"""
-	Prints the game board to the console.
-
-	:param board: The game board, 2D list of 6x7 dimensions.
-	:return: None
-	"""
-	
-	# Print the 'header' section for the board
-	print("========== Connect4 =========")
-	print("Player 1: X",'     ',"Player 2: O\n")
-	print("  1   2   3   4   5   6   7")
-	print(" ---" * 7)
-
-	# For loop prints the row dividers
-	for row in range (0, 6, 1):
-		# The first 'wall' to print for each row
-		print("|", end='') 
-
-		# For loop prints the columns and updates each cell of the column with the correct value corresponding to the player 
-		for cells in range (0, 7, 1):
-			# Print 'blank' if the cell is equal to zero
-			if board[row][cells] == 0:
-				print("   |", end='') 
-			# Print 'X' if the cell is filled with 1
-			elif board[row][cells] == 1: 
-				print(" X |", end='')
-			elif board[row][cells] == 2: # Print 'O' if the cell is filled with 2
-				print(" O |", end='') 
-
-		# The base for each row
-		print('')
-		print(" ---" * 7)
-
-	# 'Footer' section for the board
-	print("=============================")
-
-def drop_piece(board, player, column):
-	"""
-	Drops a piece into the game board in the given column.
-	
-	Looping of counter is used to check for empty cells for a piece to be played.
-
-	:param board: The game board, 2D list of 6x7 dimensions.
-	:param player: The player who is dropping the piece, int.
-	:param column: The index of column to drop the piece into, int.
-	:return: True if piece was successfully dropped, False if not.
-	"""
-	# For loop returns true if successfully dropped; False if the column is full and drop unsuccesssful
-	# Check rows from bottom to top for the column selected
-	for i in range (6):
-		if board[5-i][column-1] == 0: # Check if the provided column is empty (starting from the bottom row)
-			board[5-i][column-1] = player # Drop player piece
-			return True
-	return False
 
 def execute_player_turn(player, board):
 	"""
@@ -147,33 +70,6 @@ def execute_player_turn(player, board):
 			print("That column is full, please try again.") # Print error message and return False
 			result = False
 	return column
-
-def end_of_game(board):
-	"""
-	Checks if the game has ended with a winner
-	or a draw.
-
-	1: Player 1 is winner
-	2: Player 2 is winner
-	3: The game is a draw
-	0: Continue to next round
-
-	:param board: The game board, 2D list of 6 rows x 7 columns.
-	:return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
-	"""
-	
-	# Conditions to determine the state of the game
-	if check_winning(board) == (1,True): 	# Check winning returns 1 and True when player 1 wins
-		print("Player 1 wins!")
-		return 1
-	elif check_winning(board) == (2,True): # Check winning returns 2 and True when player 2 wins
-		print("Player 2 wins!")
-		return 2
-	elif all([cell != 0 for row in board for cell in row]): # Board is full if every row and column has a player piece 
-		print("The game is a draw!")
-		return 3
-	else:
-		return 0 # Continue game
 
 def check_winning(board):
 	"""
@@ -218,36 +114,6 @@ def check_winning(board):
 				if board[r][c] == player and board[r+1][c-1] == player and board[r+2][c-2] == player and board[r+3][c-3] == player:
 					return player, True
 	return False
-
-def local_2_player_game():
-	"""
-	The method used is odd and even rounds to determine player turn. Even rounds is played by Player 2 and Odd rounds is 
-	played by Player 1.
-	"""
-	# Clear screen and print a blank board at the start of the game
-	clear_screen()
-	round_number = 1
-	print_board(board)
-
-	# Odd rounds are played by player 1; Even rounds are played by player 2
-	# Round number starts from 1, player 1 always starts first
-	# Round number is updated only when a piece was dropped successfully
-	while end_of_game(board) == 0: 
-		# execute_player_turn is looped to prompt inputs from both players every round until there is a winner
-		if round_number % 2 == 0:
-			player = 2
-			column =  execute_player_turn(player, board) # Set the column to be player 2's input
-			clear_screen()
-			print_board(board)
-			print("Player 2 dropped a piece into column " + str(column))
-			round_number += 1
-		else:
-			player = 1
-			column =  execute_player_turn(player, board) # Set the column to be player 1's input
-			clear_screen()
-			print_board(board)
-			print("Player 1 dropped a piece into column " + str(column))
-			round_number += 1
 
 def main():
 	"""
@@ -571,15 +437,17 @@ def execute_cpu_player_hard():
 			clear_screen()
 			print_board(board)
 			print("Player 1 (CPU) dropped a piece into column " + str(column))
-			round_number += 1
+			
 		elif round_number % 2 == 0:
 			player = 2
 			column = execute_player_turn(player, board) # This line prompts the user for column
 			clear_screen()
 			print_board(board)
 			print("Player 2 dropped a piece into column " + str(column))				
-			round_number += 1
+		
+		round_number += 1
 
 if __name__ == "__main__":
-	board = create_board(6,7)
+	board = game_board(6,7)
+	board.print()
 	main()
