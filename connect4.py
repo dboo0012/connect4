@@ -1,6 +1,7 @@
 import random
 import os
-import board as game_board
+from board import Board
+# from multiplayer import local_2_player_game
 
 def clear_screen():
 	"""
@@ -64,56 +65,44 @@ def execute_player_turn(player, board):
 		column = int(user_input)
 
 		# Update cell with player piece if a valid move is executed in drop_piece(); Column selected is returned to function along with True.
-		if drop_piece(board, player, column) == True:
+		if board.drop_piece(player, column) == True:
 			result = True
 		else:
 			print("That column is full, please try again.") # Print error message and return False
 			result = False
 	return column
 
-def check_winning(board):
+def local_2_player_game(board):
 	"""
-	Conditions to check for four winning methods. Win produced by row, column, descending diagonal 
-	and ascending diagonal for both players 1 and 2. 
-	
-	Returns winner as player and True if conditions are fulfilled.
+	The method used is odd and even rounds to determine player turn. Even rounds is played by Player 2 and Odd rounds is 
+	played by Player 1.
 	"""
-	# Checks for both players
-	for player in [1,2]:
-		columns = 7
-		rows = 6
-		# Horizontal win conditions
-		# Starts from top-left (board[0][0]) and checks until the 4th column to the right
-		# Only 4 columns is checked; Past column[4], 4 in a row is impossible for row
-		for c in range (columns - 3):
-			for r in range (rows): # Checks every row
-				if board[r][c] == player and board[r][c+1] == player and board[r][c+2] == player and board[r][c+3] == player:
-					return player, True
-						
-		# Vertical win conditions
-		# Starts from top-left (board[0][0]) and checks 3 rows from the top
-		# Only 3 rows is checked; Past row[3], 4 in a row is impossible for column
-		for c in range (columns): # Checks every column
-			for r in range (rows - 3):
-				if board[r][c] == player and board[r+1][c] == player and board[r+2][c] == player and board[r+3][c] == player:
-					return player, True
+	# Clear screen and print a blank board at the start of the game
+	os.system('cls' if os.name == 'nt' else 'clear')
+	round_number = 1
+	board.print()
 
-		# Descending diagonal win conditions
-		# Starts from board[0][0] and checks for diagonal 4 in a row going in the negative direction.
-		# Only values in 4 columns and 3 rows is checked; Past that range, negative diagonal win is impossible.
-		for c in range (columns - 3): # Check columns[0, 1, 2, 3]
-			for r in range (rows - 3): # Check rows[0, 1, 2]
-				if board[r][c] == player and board[r+1][c+1] == player and board[r+2][c+2] == player and board[r+3][c+3] == player:
-					return player, True
+	# Odd rounds are played by player 1; Even rounds are played by player 2
+	# Round number starts from 1, player 1 always starts first
+	# Round number is updated only when a piece was dropped successfully
+	while board.end_of_game() == 0: 
+		# execute_player_turn is looped to prompt inputs from both players every round until there is a winner
+		if round_number % 2 == 0:
+			player = 2
+			column =  execute_player_turn(player, board) # Set the column to be player 2's input
+			clear_screen()
+			board.print()
+			print("Player 2 dropped a piece into column " + str(column))
+			round_number += 1
+		else:
+			player = 1
+			column =  execute_player_turn(player, board) # Set the column to be player 1's input
+			clear_screen()
+			board.print()
+			print("Player 1 dropped a piece into column " + str(column))
+			round_number += 1
 
-		# Ascending diagonal win conditions
-		# Starts from board[0][3] and checks for diagonal 4 in a row going in the negative direction.
-		# Only values in 4 columns and 3 rows is checked; Past that range, positive diagonal win is impossible.
-		for c in range (3, columns): # Check columns[3, 4, 5, 6]
-			for r in range (rows - 3): # Check rows[0, 1, 2]
-				if board[r][c] == player and board[r+1][c-1] == player and board[r+2][c-2] == player and board[r+3][c-3] == player:
-					return player, True
-	return False
+	# board.end_of_game()
 
 def main():
 	"""
@@ -141,7 +130,7 @@ def main():
 				print_rules()
 				selection = False
 			elif options == 2: # Play local_2_player_game
-				local_2_player_game()
+				local_2_player_game(board)
 				selection = False
 			elif options == 3: # Play against cpu
 				game_against_cpu()
@@ -168,7 +157,6 @@ def cpu_player_easy(board, player):
 		cpu_random_drop = random.randint(1, 7)
 		if drop_piece(board, player, cpu_random_drop) == True: #if you can drop
 			return cpu_random_drop
-
 
 def cpu_player_medium(board, player):
     """
@@ -448,6 +436,5 @@ def execute_cpu_player_hard():
 		round_number += 1
 
 if __name__ == "__main__":
-	board = game_board(6,7)
-	board.print()
+	board = Board(6,7)
 	main()
